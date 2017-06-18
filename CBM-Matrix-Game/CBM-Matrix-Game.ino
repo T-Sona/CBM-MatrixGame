@@ -3,7 +3,7 @@
 #include <RGBmatrixPanel.h> // Hardware-specific library
 #include <avr/pgmspace.h> 
 
-#define CLK 8  // MUST be on PORTB! (Use pin 11 on Mega)
+#define CLK 11  // MUST be on PORTB! (Use pin 11 on Mega)
 #define OE  9
 #define LAT 10
 #define A   A0
@@ -12,35 +12,14 @@
 #define D   A3
 RGBmatrixPanel matrix(A, B, C, D, CLK, LAT, OE, false);
 
-#define UP 12
-#define DOWN 13
-#define LEFT A4
-#define RIGHT A5
-
-/*
-byte labyrinth[16][16] = {
-              {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-              {1,4,1,0,0,0,1,0,0,0,0,0,0,0,1,1},
-              {1,0,1,0,1,0,0,2,1,1,0,1,1,0,0,1},
-              {1,0,1,0,1,0,1,0,0,1,0,0,1,1,0,1},
-              {1,0,1,0,1,1,1,1,1,1,0,1,1,0,0,1},
-              {1,0,0,0,0,0,1,0,0,2,0,0,1,0,1,1},
-              {1,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1},
-              {1,0,0,0,1,0,0,0,1,0,1,1,1,1,0,1},
-              {1,0,1,1,1,1,0,1,0,0,0,0,0,0,0,1},
-              {1,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1},
-              {1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,1},
-              {1,0,0,0,0,0,0,0,1,1,0,1,0,1,1,1},
-              {1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,1},
-              {1,0,0,0,1,0,1,0,1,1,1,1,0,1,0,1},
-              {1,3,1,0,0,0,1,0,0,0,0,0,0,1,0,1},
-              {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-             };
-*/
+#define UP 52
+#define DOWN 53
+#define LEFT 50
+#define RIGHT 51
 
 byte labyrinth[16*16] = {
               1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-              1,4,1,0,0,0,1,0,0,0,0,0,0,0,1,1,
+              1,2,1,0,0,0,1,0,0,0,0,0,0,0,1,1,
               1,0,1,0,1,0,0,2,1,1,0,1,1,0,0,1,
               1,0,1,0,1,0,1,0,0,1,0,0,1,1,0,1,
               1,0,1,0,1,1,1,1,1,1,0,1,1,0,0,1,
@@ -57,17 +36,6 @@ byte labyrinth[16*16] = {
               1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
              };
 
-
-byte r = 50;
-byte g = 80;
-byte b = 20;
-    uint8_t _r = 0; 
-    uint8_t _g = 0;
-    uint8_t _b = 0;
-
-// boolean created = false;
-byte labSize = 32;
-
 byte playerPositionX = 1;
 byte playerPositionY = 1;
 
@@ -80,34 +48,17 @@ bool block;
 
 void setup() {
 
-  pinMode(12, INPUT);
-  pinMode(13, INPUT);
-  pinMode(A5, INPUT);
-  pinMode(A4, INPUT);
+  pinMode(UP, INPUT);
+  pinMode(DOWN, INPUT);
+  pinMode(LEFT, INPUT);
+  pinMode(RIGHT, INPUT);
   Serial.begin(9600);
   Serial.println("drawLab:");
- matrix.begin();
+  matrix.begin();
   
   // draw a pixel in solid white
   drawLab((byte*) &labyrinth);
   matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7)); 
-  // Serial.println("drawLab:");
-  /*
-  
-  pinMode(12, INPUT);
-  pinMode(13, INPUT);
-  pinMode(A5, INPUT);
-  pinMode(A4, INPUT);
-  Serial.begin(9600);
-  matrix.begin();
-  
-  //createLabyrinth();
-  Serial.println("drawLab:");
-  drawLab((byte*) &labyrinth);
-  Serial.println("end - drawLab");
-
-  //matrix.drawPixel(2,3,matrix.Color333(1,2,3));
-  */
 }
 
 void loop() {
@@ -131,113 +82,95 @@ void loop() {
     block = true;
   }
   if(right == HIGH && !block){
+    Serial.println("r");
     movePlayer(4);
     block = true;
   }
   if(up==LOW && down == LOW && left == LOW && right ==LOW){
+    Serial.print("_");
     block = false;
   }
 }
 
-
+void draw(byte x, byte y, byte tmp ){
+  x*=2;
+  y*=2;
+  uint8_t r = 0; 
+  uint8_t g = 0;
+  uint8_t b = 0;
+  
+      if (tmp == 1) {
+        r = 68;
+        g = 18;
+        b = 166;
+    }else if (tmp == 2) {
+        r = 214;
+        g = 204;
+        b = 32;
+    }else if (tmp == 3) {
+        r = 172;
+        g = 163;
+        b = 14;
+    } else if (tmp == 4){
+        g = 250;
+    }
+    
+  matrix.drawPixel(x,y,matrix.Color888(r,g,b));
+  matrix.drawPixel(x,y+1,matrix.Color888(r,g,b));
+  matrix.drawPixel(x+1,y,matrix.Color888(r,g,b));
+  matrix.drawPixel(x+1,y+1,matrix.Color888(r,g,b));
+}
 
 void drawLab(byte *lab){
- // Serial.println("================================");
- // Serial.println("draw");
- // Serial.println("================================");
 
   for (int e = 0; e < 16*16; e++) {
     byte tmp = *(lab + e);
     int j = e % 16;
     int i = e / 16;
-    
-    if (tmp == 1) {
-        _r = 5;
-        _g = 5;
-        _b = 5;
-    }else if (tmp == 2) {
-        _r = 1;
-        _g = 1;
-        _b = 1;
-    } else {
-        _r = 0;
-        _g = 0;
-        _b = 0;
-    }
-
-   // Serial.print(_r);
-   // Serial.println();
-   _r = 0; _g = 0; _b = 0;
-   // Serial.print(_r);
-   // Serial.println();
-    
-    matrix.drawPixel(i,j,matrix.Color333(_r,_g,_b));
-    }
-    //Serial.println();
-     
-   
-     
+    draw(j,i,tmp);
+  }
+  
 }
 
 
 void movePlayer(byte direction){
-  clearDot(playerPositionX*2,playerPositionY*2);
+  draw(playerPositionX,playerPositionY, *(labyrinth+(playerPositionX+16*playerPositionY)));
   //byte temp = labyrinth[playerPositionY-1][playerPositionX];
-  //Serial.println(temp);
+
+  byte above = *(labyrinth+(playerPositionY*16)+playerPositionX-16);
+  byte below = *(labyrinth+(playerPositionY*16)+playerPositionX+16);
+  byte left = *(labyrinth+(playerPositionY*16)+playerPositionX-1);
+  byte right = *(labyrinth+(playerPositionY*16)+playerPositionX+1);
+  Serial.print("above: ");
+  Serial.println(above);
+    Serial.print("below: ");
+  Serial.println(below);
+    Serial.print("left: ");
+  Serial.println(left);
+    Serial.print("right: ");
+  Serial.println(right);
+  
   switch(direction){
     case 1: 
-      if(/*labyrinth[playerPositionY-1][playerPositionX]!= 1*/true){
+      if(above != 1){
         playerPositionY-=1; 
       }
       break;
     case 2:
-      if(/*labyrinth[playerPositionY+1][playerPositionX]!= 1*/true){
+      if(below != 1){
         playerPositionY+=1; 
       }
       break;
     case 3:
-      if(/*labyrinth[playerPositionY][playerPositionX-1]!= 1*/true){
+      if(left != 1){
         playerPositionX-=1; 
       }
       break;
     case 4:
-      if(/*labyrinth[playerPositionY][playerPositionX+1]!= 1*/true){
+      if(right!= 1){
         playerPositionX+=1; 
       }
       break;
   }
-  
-  matrix.drawPixel(playerPositionX*2,playerPositionY*2,matrix.Color333(0,255,0));
-  matrix.drawPixel(playerPositionX*2+1,playerPositionY*2,matrix.Color333(0,255,0));
-  matrix.drawPixel(playerPositionX*2,playerPositionY*2+1,matrix.Color333(0,255,0));
-  matrix.drawPixel(playerPositionX*2+1,playerPositionY*2+1,matrix.Color333(0,255,0));
-}
-
-////////////////////////
-//old
-////////////////////////
-void createLabyrinth(){
-  byte center = ((32-labSize)/2);
-  for(int i=0; i<labSize;i++){
-    for(int j=0; j<labSize;j++){
-      if(true){ //i==0||i==(labSize-1)||j==0||j==(labSize-1)
-        int moveX = i+center;
-        int moveY = j+center;
-        matrix.drawPixel(moveX,moveY,matrix.Color333(r,g,b));
-      }
-    }
-  }
-  matrix.drawPixel(playerPositionX*2,playerPositionY*2,matrix.Color333(0,255,0));
-  matrix.drawPixel(playerPositionX*2+1,playerPositionY*2,matrix.Color333(0,255,0));
-  matrix.drawPixel(playerPositionX*2,playerPositionY*2+1,matrix.Color333(0,255,0));
-  matrix.drawPixel(playerPositionX*2+1,playerPositionY*2+1,matrix.Color333(0,255,0));
-  //byte help= ((labSize-1)*(labSize-1));
-  //byte goal = rand()%(30-50 + 1) + 50;
-}
-
-void clearDot(byte x,byte y){
-   matrix.drawPixel(x,y,matrix.Color333(0,0,0));
-   matrix.drawPixel(x,y+1,matrix.Color333(0,0,0));
-   matrix.drawPixel(x+1,y,matrix.Color333(0,0,0));
-   matrix.drawPixel(x+1,y+1,matrix.Color333(0,0,0));
+  draw(playerPositionX,playerPositionY,4);
 }
