@@ -18,26 +18,27 @@ RGBmatrixPanel matrix(A, B, C, D, CLK, LAT, OE, false);
 #define RIGHT 51
 
 byte labyrinth[16*16] = {
-              1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-              1,2,1,0,0,0,1,0,0,0,0,0,0,0,1,1,
-              1,0,1,0,1,0,0,2,1,1,0,1,1,0,0,1,
-              1,0,1,0,1,0,1,0,0,1,0,0,1,1,0,1,
-              1,0,1,0,1,1,1,1,1,1,0,1,1,0,0,1,
-              1,0,0,0,0,0,1,0,0,2,0,0,1,0,1,1,
-              1,1,1,1,1,0,1,1,1,1,1,0,1,0,0,1,
-              1,0,0,0,1,0,0,0,1,0,1,1,1,1,0,1,
-              1,0,1,1,1,1,0,1,0,0,0,0,0,0,0,1,
-              1,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1,
-              1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,1,
-              1,0,0,0,0,0,0,0,1,1,0,1,0,1,1,1,
-              1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,1,
-              1,0,0,0,1,0,1,0,1,1,1,1,0,1,0,1,
-              1,3,1,0,0,0,1,0,0,0,0,0,0,1,0,1,
-              1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+              1,1,1,1,1,1,1,1,  1,1,1,1,1,1,1,1,
+              1,5,1,0,0,0,0,1,  1,1,0,0,0,0,1,1,
+              1,0,1,0,1,1,0,2,  0,0,0,1,1,0,0,1,
+              1,0,1,0,0,1,1,1,  1,1,0,0,1,1,0,1,
+              1,0,1,1,0,0,1,1,  1,1,1,1,1,0,0,1,
+              1,0,0,1,1,0,1,0,  1,0,0,0,0,0,1,1,
+              1,1,0,0,0,0,1,1,  1,1,0,1,1,0,0,1,
+              1,1,1,1,1,1,1,1,  1,1,2,1,1,1,1,1,
+              1,1,1,1,1,1,1,1,  1,1,0,1,1,1,1,1,
+              1,0,0,0,0,0,0,1,  1,1,0,1,1,1,0,1,
+              1,0,1,1,0,1,1,1,  1,0,0,0,0,0,0,1,
+              1,0,0,1,0,0,0,1,  1,1,0,1,0,1,1,1,
+              1,0,1,1,1,1,0,1,  0,1,0,1,0,0,0,1,
+              1,0,0,0,1,1,0,1,  1,1,1,1,0,1,0,1,
+              1,2,1,0,1,0,0,0,  2,0,0,0,0,1,0,1,
+              1,1,1,1,1,1,1,1,  1,1,1,1,1,1,1,1
              };
 
 byte playerPositionX = 1;
 byte playerPositionY = 1;
+byte currentRound = 0;
 
 int up;
 int down;
@@ -57,8 +58,9 @@ void setup() {
   matrix.begin();
   
   // draw a pixel in solid white
-  drawLab((byte*) &labyrinth);
-  matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7)); 
+
+  matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7));
+  checkRound();
 }
 
 void loop() {
@@ -82,7 +84,6 @@ void loop() {
     block = true;
   }
   if(right == HIGH && !block){
-    Serial.println("r");
     movePlayer(4);
     block = true;
   }
@@ -113,6 +114,10 @@ void draw(byte x, byte y, byte tmp ){
         b = 14;
     } else if (tmp == 4){
         g = 250;
+    } else if (tmp == 5){
+        r = 140;
+        g = 140;
+        b = 14;
     }
     
   matrix.drawPixel(x,y,matrix.Color888(r,g,b));
@@ -128,6 +133,126 @@ void drawLab(byte *lab){
     int j = e % 16;
     int i = e / 16;
     draw(j,i,tmp);
+  }
+  
+}
+
+void checkRound() {
+  char win = 0;
+  switch(currentRound) {
+    case 0:
+      for(int i=8; i<16; i++) {
+        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[i+16] -= 3;
+        labyrinth[i+32] -= 3;
+        labyrinth[i+48] -= 3;
+        labyrinth[i+64] -= 3;
+        labyrinth[i+80] -= 3;
+        labyrinth[i+96] -= 3;
+      }
+      for(int i=120; i<sizeof(labyrinth); i++) {
+        labyrinth[i] -= 3;
+      }
+      break;
+    case 1:
+      for(int i=0; i<8; i++) {
+        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[i+16] -= 3;
+        labyrinth[i+32] -= 3;
+        labyrinth[i+48] -= 3;
+        labyrinth[i+64] -= 3;
+        labyrinth[i+80] -= 3;
+        labyrinth[i+96] -= 3;
+        labyrinth[i+112] -= 3;
+      }
+      for(int i=8; i<16; i++) {
+        labyrinth[i] += 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[i+16] += 3;
+        labyrinth[i+32] += 3;
+        labyrinth[i+48] += 3;
+        labyrinth[i+64] += 3;
+        labyrinth[i+80] += 3;
+        labyrinth[i+96] += 3;
+        labyrinth[i+112] += 3;
+      }
+      *(labyrinth+(playerPositionY*16)+playerPositionX) = 1;
+      movePlayer(4);
+      break;
+    case 2:
+      for(int i=0; i<16; i++) {
+        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[i+16] -= 3;
+        labyrinth[i+32] -= 3;
+        labyrinth[i+48] -= 3;
+        labyrinth[i+64] -= 3;
+        labyrinth[i+80] -= 3;
+        labyrinth[i+96] -= 3;
+        labyrinth[i+112] -= 3;
+      }
+     
+      for(int k=136; k<144; k++) {
+        labyrinth[k] += 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[k+16] += 3;
+        labyrinth[k+32] += 3;
+        labyrinth[k+48] += 3;
+        labyrinth[k+64] += 3;
+        labyrinth[k+80] += 3;
+        labyrinth[k+96] += 3;
+        labyrinth[k+112] += 3; 
+      }
+      
+      *(labyrinth+(playerPositionY*16)+playerPositionX) = 1;
+      movePlayer(2);
+      break;
+    case 3:
+      for(int i=0; i<16; i++) {
+        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[i+16] -= 3;
+        labyrinth[i+32] -= 3;
+        labyrinth[i+48] -= 3;
+        labyrinth[i+64] -= 3;
+        labyrinth[i+80] -= 3;
+        labyrinth[i+96] -= 3;
+        labyrinth[i+112] -= 3;
+      }
+      for(int k=136; k<144; k++) {
+        labyrinth[k] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[k+16] -= 3;
+        labyrinth[k+32] -= 3;
+        labyrinth[k+48] -= 3;
+        labyrinth[k+64] -= 3;
+        labyrinth[k+80] -= 3;
+        labyrinth[k+96] -= 3;
+        labyrinth[k+112] -= 3; 
+      }
+      for(int k=128; k<136; k++) {
+        labyrinth[k] += 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+        labyrinth[k+16] += 3;
+        labyrinth[k+32] += 3;
+        labyrinth[k+48] += 3;
+        labyrinth[k+64] += 3;
+        labyrinth[k+80] += 3;
+        labyrinth[k+96] += 3;
+        labyrinth[k+112] += 3; 
+      }
+      *(labyrinth+(playerPositionY*16)+playerPositionX) = 1;
+      movePlayer(3);
+      break;
+    case 4:
+      win = true;
+      break;
+  }
+
+  if(!win) {
+    drawLab((byte*) &labyrinth);
+    draw(playerPositionX,playerPositionY,4);
+  } else {
+     matrix.setCursor(7, 0);   // start at top left, with one pixel of spacing
+     matrix.setTextSize(1);    // size 1 == 8 pixels high
+     matrix.setTextColor(matrix.Color333(0,7,0));
+     matrix.print('W');
+     matrix.print('I');
+     matrix.print('N');
   }
   
 }
@@ -167,10 +292,16 @@ void movePlayer(byte direction){
       }
       break;
     case 4:
-      if(right!= 1){
+      if(right != 1){
         playerPositionX+=1; 
       }
       break;
   }
   draw(playerPositionX,playerPositionY,4);
+  if(*(labyrinth+(playerPositionY*16)+playerPositionX) == 2) {
+    currentRound += 1;
+    checkRound();
+  }
+  
 }
+
