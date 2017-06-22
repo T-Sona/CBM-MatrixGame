@@ -46,6 +46,8 @@ int down;
 int left;
 int right;
 
+char player = 'z';
+
 bool block;
 bool gameend = false;
 
@@ -56,7 +58,7 @@ void setup() {
   pinMode(LEFT, INPUT);
   pinMode(RIGHT, INPUT);
   Serial.begin(9600);
-  Serial.println("drawLab:");
+  //Serial.println("drawLab:");
   matrix.begin();
   
   // draw a pixel in solid white
@@ -70,38 +72,81 @@ void loop() {
   down = digitalRead(DOWN);
   left = digitalRead(LEFT);
   right = digitalRead(RIGHT);
+  player = 'p';
 
-  if(life == 0 && !gameend) {
+  if(player == 'p'){
+    if(life == 0 && !gameend) {
      drawGameover();
      gameend = true;
-  }
+    }
 
-  if (life > 0 && !gameend){
-    if(up == HIGH && !block){
-      movePlayer(1);
-      block = true;
-    }
-    if(down == HIGH && !block){
-      movePlayer(2);
-      block = true;
-    }
-    if(left == HIGH && !block){
-      movePlayer(3);
-      block = true;
-    }
-    if(right == HIGH && !block){
-      movePlayer(4);
+    if (life > 0 && !gameend){
+      if(up == HIGH && !block){
+        Serial.print(1);
+        movePlayer(1);
+        block = true;
+      }
+      if(down == HIGH && !block){
+        movePlayer(2);
+        Serial.print(2);
+        block = true;
+      }
+      if(left == HIGH && !block){
+        movePlayer(3);
+        Serial.print(3);
+        block = true;
+       }
+      if(right == HIGH && !block){
+        movePlayer(4);
+        Serial.print(4);
       block = true;
     }
     if(up==LOW && down == LOW && left == LOW && right ==LOW){
-      Serial.print("_");
+     // Serial.print("_");
       block = false;
     }
+    
   }
+    
+  }else if(player == 'w'){
+    char movement = 'z';
+    if (Serial.available()) {
 
-  
-  
+      char incomingByte = char(Serial.read());
+      movement = incomingByte;
+    }
+      if(life == 0 && !gameend) {
+        drawGameover();
+        gameend = true;
+      }
+
+      if (life > 0 && !gameend){
+        if(movement == 'u'){
+          movePlayer(1);
+          block = true;
+        }
+        if(movement == 'd'){
+          movePlayer(2);
+          block = true;
+        }
+        if(movement == 'l'){
+          movePlayer(3);
+          block = true;
+        }
+        if(movement == 'r'){
+          movePlayer(4);
+        block = true;
+      }
+     }
+  }else{
+    if (Serial.available()) {
+
+      char incomingByte = char(Serial.read());
+      player = incomingByte;
+    }
+  }
 }
+
 
 void drawGameover() {
   for(int k=0; k<sizeof(labyrinth); k++) {
@@ -275,14 +320,14 @@ void movePlayer(byte direction){
   byte below = *(labyrinth+(playerPositionY*16)+playerPositionX+16);
   byte left = *(labyrinth+(playerPositionY*16)+playerPositionX-1);
   byte right = *(labyrinth+(playerPositionY*16)+playerPositionX+1);
-  Serial.print("above: ");
+  /*Serial.print("above: ");
   Serial.println(above);
     Serial.print("below: ");
   Serial.println(below);
     Serial.print("left: ");
   Serial.println(left);
     Serial.print("right: ");
-  Serial.println(right);
+  Serial.println(right);*/
   
   switch(direction){
     case 1: 
