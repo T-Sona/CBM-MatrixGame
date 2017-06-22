@@ -6,7 +6,7 @@ import thread
 # ser = serial.Serial('/dev/ttyACM0', 9600) --> raspberry port
 ser = serial.Serial('/dev/tty.usbmodem1411', 9600)  # macbook port
 app = Flask(__name__)
-ip = "127.0.0.1:5000"
+ip = "192.168.1.20:5000"
 
 
 def sendUp():
@@ -149,7 +149,7 @@ def gameover():
 
 
 def flaskThread():
-    app.run()
+    app.run(host='0.0.0.0')
 
 
 if __name__ == '__main__':
