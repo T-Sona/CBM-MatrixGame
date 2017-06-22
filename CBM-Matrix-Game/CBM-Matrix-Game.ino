@@ -39,6 +39,7 @@ byte labyrinth[16*16] = {
 byte playerPositionX = 1;
 byte playerPositionY = 1;
 byte currentRound = 0;
+byte life = 5;
 
 int up;
 int down;
@@ -46,6 +47,7 @@ int left;
 int right;
 
 bool block;
+bool gameend = false;
 
 void setup() {
 
@@ -64,33 +66,60 @@ void setup() {
 }
 
 void loop() {
-  
   up = digitalRead(UP);
   down = digitalRead(DOWN);
   left = digitalRead(LEFT);
   right = digitalRead(RIGHT);
 
+  if(life == 0 && !gameend) {
+     drawGameover();
+     gameend = true;
+  }
+
+  if (life > 0 && !gameend){
+    if(up == HIGH && !block){
+      movePlayer(1);
+      block = true;
+    }
+    if(down == HIGH && !block){
+      movePlayer(2);
+      block = true;
+    }
+    if(left == HIGH && !block){
+      movePlayer(3);
+      block = true;
+    }
+    if(right == HIGH && !block){
+      movePlayer(4);
+      block = true;
+    }
+    if(up==LOW && down == LOW && left == LOW && right ==LOW){
+      Serial.print("_");
+      block = false;
+    }
+  }
+
   
-  if(up == HIGH && !block){
-    movePlayer(1);
-    block = true;
+  
+}
+
+void drawGameover() {
+  for(int k=0; k<sizeof(labyrinth); k++) {
+    labyrinth[k] -= 5; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten 
   }
-  if(down == HIGH && !block){
-    movePlayer(2);
-    block = true;
-  }
-  if(left == HIGH && !block){
-    movePlayer(3);
-    block = true;
-  }
-  if(right == HIGH && !block){
-    movePlayer(4);
-    block = true;
-  }
-  if(up==LOW && down == LOW && left == LOW && right ==LOW){
-    Serial.print("_");
-    block = false;
-  }
+  drawLab((byte*) &labyrinth);
+  matrix.setCursor(5, 9);   // start at top left, with one pixel of spacing
+  matrix.setTextSize(1);    // size 1 == 8 pixels high
+  matrix.setTextColor(matrix.Color333(7,0,0));
+  matrix.print('G');
+  matrix.print('A');
+  matrix.print('M');
+  matrix.print('E');
+  matrix.setCursor(5, 18);
+  matrix.print('O');
+  matrix.print('V');
+  matrix.print('E');
+  matrix.print('R');
 }
 
 void draw(byte x, byte y, byte tmp ){
@@ -134,11 +163,30 @@ void drawLab(byte *lab){
     int i = e / 16;
     draw(j,i,tmp);
   }
-  
+  displayLife();
 }
 
+void displayLife(){
+  if(life > 0) {
+    for(int i=0;i<life+1;i++) {
+        matrix.drawPixel(i,0,matrix.Color888(68,18,166));
+    }
+  }
+  
+  for(int i=0;i<life;i++) {
+        matrix.drawPixel(i,0,matrix.Color888(255,0,0));
+  }
+
+  if(gameend) {
+    for(int i=0;i<life+1;i++) {
+      matrix.drawPixel(i,0,matrix.Color888(0,0,0));
+    }
+  }
+}
+
+
 void checkRound() {
-  char win = 0;
+  bool win = 0;
   switch(currentRound) {
     case 0:
       for(int i=8; i<16; i++) {
@@ -155,16 +203,6 @@ void checkRound() {
       }
       break;
     case 1:
-      for(int i=0; i<8; i++) {
-        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
-        labyrinth[i+16] -= 3;
-        labyrinth[i+32] -= 3;
-        labyrinth[i+48] -= 3;
-        labyrinth[i+64] -= 3;
-        labyrinth[i+80] -= 3;
-        labyrinth[i+96] -= 3;
-        labyrinth[i+112] -= 3;
-      }
       for(int i=8; i<16; i++) {
         labyrinth[i] += 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
         labyrinth[i+16] += 3;
@@ -175,21 +213,9 @@ void checkRound() {
         labyrinth[i+96] += 3;
         labyrinth[i+112] += 3;
       }
-      *(labyrinth+(playerPositionY*16)+playerPositionX) = 1;
-      movePlayer(4);
+      *(labyrinth+(playerPositionY*16)+playerPositionX) = 0;
       break;
-    case 2:
-      for(int i=0; i<16; i++) {
-        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
-        labyrinth[i+16] -= 3;
-        labyrinth[i+32] -= 3;
-        labyrinth[i+48] -= 3;
-        labyrinth[i+64] -= 3;
-        labyrinth[i+80] -= 3;
-        labyrinth[i+96] -= 3;
-        labyrinth[i+112] -= 3;
-      }
-     
+    case 2:    
       for(int k=136; k<144; k++) {
         labyrinth[k] += 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
         labyrinth[k+16] += 3;
@@ -201,30 +227,9 @@ void checkRound() {
         labyrinth[k+112] += 3; 
       }
       
-      *(labyrinth+(playerPositionY*16)+playerPositionX) = 1;
-      movePlayer(2);
+      *(labyrinth+(playerPositionY*16)+playerPositionX) = 0;
       break;
     case 3:
-      for(int i=0; i<16; i++) {
-        labyrinth[i] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
-        labyrinth[i+16] -= 3;
-        labyrinth[i+32] -= 3;
-        labyrinth[i+48] -= 3;
-        labyrinth[i+64] -= 3;
-        labyrinth[i+80] -= 3;
-        labyrinth[i+96] -= 3;
-        labyrinth[i+112] -= 3;
-      }
-      for(int k=136; k<144; k++) {
-        labyrinth[k] -= 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
-        labyrinth[k+16] -= 3;
-        labyrinth[k+32] -= 3;
-        labyrinth[k+48] -= 3;
-        labyrinth[k+64] -= 3;
-        labyrinth[k+80] -= 3;
-        labyrinth[k+96] -= 3;
-        labyrinth[k+112] -= 3; 
-      }
       for(int k=128; k<136; k++) {
         labyrinth[k] += 3; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
         labyrinth[k+16] += 3;
@@ -235,8 +240,7 @@ void checkRound() {
         labyrinth[k+96] += 3;
         labyrinth[k+112] += 3; 
       }
-      *(labyrinth+(playerPositionY*16)+playerPositionX) = 1;
-      movePlayer(3);
+      *(labyrinth+(playerPositionY*16)+playerPositionX) = 0;
       break;
     case 4:
       win = true;
@@ -247,6 +251,11 @@ void checkRound() {
     drawLab((byte*) &labyrinth);
     draw(playerPositionX,playerPositionY,4);
   } else {
+    for(int k=0; k<sizeof(labyrinth); k++) {
+        labyrinth[k] -= 5; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten 
+      }
+     drawLab((byte*) &labyrinth);
+     gameend = true;
      matrix.setCursor(7, 0);   // start at top left, with one pixel of spacing
      matrix.setTextSize(1);    // size 1 == 8 pixels high
      matrix.setTextColor(matrix.Color333(0,7,0));
@@ -279,24 +288,37 @@ void movePlayer(byte direction){
     case 1: 
       if(above != 1){
         playerPositionY-=1; 
+      } else if(above == 1) {
+        life -= 1;
+        displayLife();
       }
       break;
     case 2:
       if(below != 1){
         playerPositionY+=1; 
+      } else if(below == 1) {
+        life -= 1;
+        displayLife();
       }
       break;
     case 3:
       if(left != 1){
         playerPositionX-=1; 
+      } else if(left == 1) {
+        life -= 1;
+        displayLife();
       }
       break;
     case 4:
       if(right != 1){
         playerPositionX+=1; 
+      } else if(right == 1) {
+        life -= 1;
+        displayLife();
       }
       break;
   }
+
   draw(playerPositionX,playerPositionY,4);
   if(*(labyrinth+(playerPositionY*16)+playerPositionX) == 2) {
     currentRound += 1;
