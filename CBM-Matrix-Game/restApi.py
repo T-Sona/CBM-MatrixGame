@@ -170,6 +170,10 @@ def watcher():
     ser.write("w")
     return "watcher"
 
+@app.route("/lifelost")
+def lifelost():
+    ser.write("i")
+    return "lifelost"
 
 @app.route("/waiting")
 def waiting():
@@ -205,5 +209,7 @@ if __name__ == '__main__':
             sendWaiting();
         elif data == 's':
             sendStart()
+        elif data == 'i':
+            sendLifeLost()
         elif data == '0' or data == '1' or data == '2' or data == '3' or data == '4' or data == '5' or data == '6' or data == '7' or data == '8' or data == '9':
             sendLab(data)
