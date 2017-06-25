@@ -1,12 +1,15 @@
 from flask import Flask
+from flask import request
 import requests
 import serial
 import thread
 
-# ser = serial.Serial('/dev/ttyACM0', 9600) --> raspberry port
+#ser = serial.Serial('/dev/ttyACM0', 9600) # raspberry port
 ser = serial.Serial('/dev/tty.usbmodem1411', 9600)  # macbook port
 app = Flask(__name__)
-ip = "192.168.1.20:5000"
+# ip = "192.168.1.20:5000"
+#ip = "141.19.142.164:5000"
+ip = "141.19.142.232:5000"
 
 
 def sendUp():
@@ -95,6 +98,31 @@ def sendLifeLost():
         print e
 
 
+def sendWaiting():
+    http = "http://" + ip + "/waiting"
+    try:
+        resp = requests.get(http)
+        if resp.status_code != 200:
+            print "failed"
+        else:
+            print resp.text
+    except requests.exceptions.ConnectionError as e:
+        print e
+
+
+def sendLab(data):
+    http = "http://" + ip + "/lab?nr="+data
+    print "data"+data
+    try:
+        resp = requests.get(http)
+        if resp.status_code != 200:
+            print "failed"
+        else:
+            print resp.text
+    except requests.exceptions.ConnectionError as e:
+        print e
+
+
 @app.route("/up")
 def up():
     ser.write("u")
@@ -143,9 +171,17 @@ def watcher():
     return "watcher"
 
 
-@app.route("/gameover")
-def gameover():
-    return "gameover"
+@app.route("/waiting")
+def waiting():
+    ser.write("a")
+    return "waiting"
+
+
+@app.route("/lab")
+def lab():
+    query_string = request.query_string
+    ser.write(query_string[3:])
+    return "lab"
 
 
 def flaskThread():
@@ -155,12 +191,19 @@ def flaskThread():
 if __name__ == '__main__':
     thread.start_new_thread(flaskThread, ())
     while 1:
-        movement = ser.read()
-        if movement == '1':
+        data = ser.read()
+        print data
+        if data == 'u':
             sendUp()
-        elif movement == '2':
+        elif data == 'd':
             sendDown()
-        elif movement == '3':
+        elif data == 'l':
             sendLeft()
-        elif movement == '4':
+        elif data == 'r':
             sendRight()
+        elif data == 'w':
+            sendWaiting();
+        elif data == 's':
+            sendStart()
+        elif data == '0' or data == '1' or data == '2' or data == '3' or data == '4' or data == '5' or data == '6' or data == '7' or data == '8' or data == '9':
+            sendLab(data)
