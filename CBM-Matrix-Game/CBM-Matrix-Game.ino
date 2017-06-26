@@ -16,6 +16,7 @@ RGBmatrixPanel matrix(A, B, C, D, CLK, LAT, OE, false);
 #define DOWN 53
 #define LEFT 50
 #define RIGHT 51
+#define START 48
 
 byte labyrinth[16 * 16] = {
   1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1,
@@ -40,38 +41,38 @@ byte labyrinthPool[2][2][16 * 16] = {
   {
     {
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1,
-      1, 5, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 5, 9, 0, 0, 0, 0, 9,  9, 9, 0, 0, 0, 0, 9, 1,
       1, 0, 1, 0, 1, 1, 0, 2,  0, 0, 0, 1, 1, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 9, 0, 0, 9, 9, 9,  9, 9, 0, 0, 9, 9, 0, 1,
       1, 0, 1, 1, 0, 0, 1, 1,  1, 1, 1, 1, 1, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 0,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 9, 9, 0, 9, 0,  9, 0, 0, 0, 0, 0, 9, 1,
       1, 1, 0, 0, 0, 0, 1, 1,  1, 1, 0, 1, 1, 0, 0, 1,
-      1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 2, 1, 1, 1, 1, 1,
+      1, 9, 9, 9, 9, 9, 9, 1,  1, 9, 2, 9, 9, 9, 9, 1,
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 1, 1, 1, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 0, 0, 0, 9,  9, 9, 0, 9, 9, 9, 0, 1,
       1, 0, 1, 1, 0, 1, 1, 1,  1, 0, 0, 0, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 9, 0, 0, 0, 9,  9, 9, 0, 9, 0, 9, 9, 1,
       1, 0, 1, 1, 1, 1, 0, 1,  0, 1, 0, 1, 0, 0, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 0, 0, 9, 9, 0, 9,  9, 9, 9, 9, 0, 9, 0, 1,
       1, 2, 1, 0, 1, 0, 0, 0,  2, 0, 0, 0, 0, 1, 0, 1,
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1
     },
     {
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1,
       1, 5, 1, 0, 0, 0, 0, 1,  1, 1, 0, 0, 0, 0, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 2,  0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 9, 0, 9, 9, 0, 2,  0, 0, 0, 9, 9, 0, 0, 1,
       1, 0, 1, 0, 0, 1, 1, 1,  1, 1, 0, 0, 1, 1, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 9, 9, 0, 0, 9, 9,  9, 9, 9, 9, 9, 0, 0, 1,
       1, 0, 0, 1, 1, 0, 1, 0,  1, 0, 0, 0, 0, 0, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 9, 0, 0, 0, 0, 9, 9,  9, 9, 0, 9, 9, 0, 0, 1,
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 2, 1, 1, 1, 1, 1,
-      1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 0, 1, 1, 1, 1, 1,
+      1, 9, 9, 9, 9, 9, 9, 9,  9, 9, 0, 9, 9, 9, 9, 1,
       1, 0, 0, 0, 0, 0, 0, 1,  1, 1, 0, 1, 1, 1, 0, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  1, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 9, 9, 0, 9, 9, 9,  9, 0, 0, 0, 0, 0, 0, 1,
       1, 0, 0, 1, 0, 0, 0, 1,  1, 1, 0, 1, 0, 1, 1, 1,
-      1, 0, 0, 0, 0, 0, 0, 1,  0, 0, 0, 0, 0, 0, 0, 1,
+      1, 0, 9, 9, 9, 9, 0, 9,  0, 9, 0, 9, 0, 0, 0, 1,
       1, 0, 0, 0, 1, 1, 0, 1,  1, 1, 1, 1, 0, 1, 0, 1,
-      1, 2, 1, 0, 1, 0, 0, 0,  2, 0, 0, 0, 0, 1, 0, 1,
+      1, 2, 9, 0, 9, 0, 0, 0,  2, 0, 0, 0, 0, 9, 0, 1,
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1
     }
   },
@@ -126,6 +127,7 @@ int up;
 int down;
 int left;
 int right;
+int start;
 
 char player = 'z';
 //char player = 'p';
@@ -141,6 +143,7 @@ void setup() {
   pinMode(DOWN, INPUT);
   pinMode(LEFT, INPUT);
   pinMode(RIGHT, INPUT);
+  pinMode(START, INPUT);
   Serial.begin(9600);
   //Serial.println("drawLab:");
   matrix.begin();
@@ -148,7 +151,7 @@ void setup() {
   // draw a pixel in solid white
 
   matrix.drawPixel(0, 0, matrix.Color333(7, 7, 7));
-  checkRound();
+  //checkRound();
 
 }
 
@@ -158,9 +161,11 @@ void loop() {
   down = digitalRead(DOWN);
   left = digitalRead(LEFT);
   right = digitalRead(RIGHT);
+  start = digitalRead(START);
   //enable game reset after win or lose
   newGameStarts();
   someoneWaits();
+
 
 
   //disable long press button
@@ -216,10 +221,6 @@ void loop() {
       if (movement == 'r') {
         movePlayer(4);
       }
-      if (movement == 'i') {
-        displayLife();
-        lifeLost(true);
-      }
     }
   } else {
     if (Serial.available()) {
@@ -230,7 +231,8 @@ void loop() {
 
 void newGameStarts() {
   if (newgame) {
-    if (left == HIGH && !block) {
+    drawGameReady();
+    if (start == HIGH && !block) {
       block = true;
       Serial.print('s');
       waiting = true;
@@ -240,6 +242,7 @@ void newGameStarts() {
       for (int k = 0; k < sizeof(labyrinth); k++) {
         labyrinth[k] -= 5; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
       }
+      block = false;
     }
     if (Serial.available()) {
       char data = reciveData();
@@ -256,29 +259,59 @@ void newGameStarts() {
   }
 }
 void drawGameover() {
+  byte i = 0;
+  while (i < 3) {
+    for (int k = 0; k < sizeof(labyrinth); k++) {
+      labyrinth[k] = 0; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+    }
+    drawLab((byte*) &labyrinth);
+    delay(1000);
+    matrix.setCursor(5, 9);   // start at top left, with one pixel of spacing
+    matrix.setTextSize(1);    // size 1 == 8 pixels high
+    matrix.setTextColor(matrix.Color333(7, 0, 0));
+    matrix.print('G');
+    matrix.print('A');
+    matrix.print('M');
+    matrix.print('E');
+    matrix.setCursor(5, 18);
+    matrix.print('O');
+    matrix.print('V');
+    matrix.print('E');
+    matrix.print('R');
+    newgame = true;
+    delay(2000);
+    i += 1;
+  }
+  drawGameReady();
+}
+
+void drawGameReady() {
   for (int k = 0; k < sizeof(labyrinth); k++) {
-    labyrinth[k] -= 5; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+    labyrinth[k] = 0; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
   }
   drawLab((byte*) &labyrinth);
+  delay(1000);
   matrix.setCursor(5, 9);   // start at top left, with one pixel of spacing
-  matrix.setTextSize(1);    // size 1 == 8 pixels high
-  matrix.setTextColor(matrix.Color333(7, 0, 0));
+  matrix.setTextSize(1); // size 1 == 8 pixels high
+  matrix.setTextColor(matrix.Color333(0, 0, 7));
   matrix.print('G');
   matrix.print('A');
   matrix.print('M');
   matrix.print('E');
-  matrix.setCursor(5, 18);
-  matrix.print('O');
-  matrix.print('V');
-  matrix.print('E');
+  matrix.setCursor(2, 18);
   matrix.print('R');
-  newgame = true;
+  matrix.print('E');
+  matrix.print('A');
+  matrix.print('D');
+  matrix.print('Y');
+  player = 'z';
+  delay(2000);
 }
 
 void someoneWaits() {
   if (waiting) {
     drawSomeoneWaits();
-    if (up == HIGH && !block && player != 'p') {
+    if (start == HIGH && !block && player != 'p') {
       block = true;
       Serial.print('w');
       gameend = false;
@@ -287,7 +320,7 @@ void someoneWaits() {
       currentRound = 0;
       life = 5;
       waiting = false;
-      int labNr = random(0, maxLabs - 1);
+      int labNr = random(0, maxLabs);
       Serial.print(labNr);
       for (int k = 0; k < sizeof(labyrinth); k++) {
         labyrinth[k] = labyrinthPool[labNr][0][k];
@@ -326,8 +359,8 @@ void drawSomeoneWaits() {
   drawLab((byte*) &labyrinth);
   delay(700);
   matrix.setCursor(5, 8);   // start at top left, with one pixel of spacing
-  matrix.setTextSize(0.1);    // size 1 == 8 pixels high
-  matrix.setTextColor(matrix.Color333(7, 0, 0));
+  matrix.setTextSize(1);    // size 1 == 8 pixels high
+  matrix.setTextColor(matrix.Color333(0, 7, 0));
   matrix.print('W');
   matrix.print('A');
   matrix.print('I');
@@ -468,10 +501,13 @@ void checkRound() {
     drawLab((byte*) &labyrinth);
     draw(playerPositionX, playerPositionY, 4);
   } else {
+    byte i = 0;
+    while(i<3){
     for (int k = 0; k < sizeof(labyrinth); k++) {
-      labyrinth[k] -= 5; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
+      labyrinth[k] = 0; // 1 wird zu -2; 0 wird zu -3, Info ob 1 oder 0 bleibt erhalten
     }
     drawLab((byte*) &labyrinth);
+    delay(1000);
     gameend = true;
     matrix.setCursor(7, 0);   // start at top left, with one pixel of spacing
     matrix.setTextSize(1);    // size 1 == 8 pixels high
@@ -480,6 +516,9 @@ void checkRound() {
     matrix.print('I');
     matrix.print('N');
     newgame = true;
+    delay(2000);
+    i += 1;
+    }
   }
 
 }
@@ -501,59 +540,43 @@ void movePlayer(byte direction) {
     Serial.println(left);
     Serial.print("right: ");
     Serial.println(right);*/
-  char movement = 'k';
-  delay(500);
-  if (Serial.available()) {
-  movement = reciveData();
-  }
   switch (direction) {
     case 1:
-      if ( above == 1 || movement == 'i') {
-        if (movement == 'i') {
-          lifeLost(true);
-        } else {
-          lifeLost(false);
-        }
-      } else if (above != 1) {
+      if ( above == 1 || above == 9) {
+        life -= 1;
+        displayLife();
+        Serial.print('u');
+      } else {
         playerPositionY -= 1;
         Serial.print('u');
       }
       break;
     case 2:
-      if (  below == 1 || movement == 'i') {
-        if (movement == 'i') {
-          lifeLost(true);
-        } else {
-          lifeLost(false);
-        }
-      } else if (below != 1) {
+      if (  below == 1 || below == 9) {
+        life -= 1;
+        displayLife();
+        Serial.print('d');
+      } else {
         playerPositionY += 1;
         Serial.print('d');
       }
       break;
     case 3:
-      if (left == 1 || movement == 'i') {
-        if (movement == 'i') {
-          lifeLost(true);
-        } else {
-          lifeLost(false);
-        }
-
-      } else if (left != 1) {
-        playerPositionX -= 1;
+      if (left == 1 || left == 9) {
+        life -= 1;
+        displayLife();
         Serial.print('l');
       } else {
-        lifeLost(false);
+        playerPositionX -= 1;
+        Serial.print('l');
       }
       break;
     case 4:
-      if (right == 1 || movement == 'i') {
-        if (movement == 'i') {
-          lifeLost(true);
-        } else {
-          lifeLost(false);
-        }
-      } else if (right != 1) {
+      if (right == 1 || right == 9) {
+        life -= 1;
+        displayLife();
+        Serial.print('r');
+      } else {
         playerPositionX += 1;
         Serial.print('r');
       }
@@ -566,13 +589,6 @@ void movePlayer(byte direction) {
     checkRound();
   }
 
-}
-void lifeLost(bool external) {
-  life -= 1;
-  displayLife();
-  if (!external) {
-    Serial.print('i');
-  }
 }
 
 char reciveData() {
