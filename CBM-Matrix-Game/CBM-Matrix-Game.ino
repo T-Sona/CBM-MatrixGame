@@ -12,11 +12,12 @@
 #define D   A3
 RGBmatrixPanel matrix(A, B, C, D, CLK, LAT, OE, false);
 
-#define UP 52
-#define DOWN 53
-#define LEFT 50
-#define RIGHT 51
-#define START 48
+#define UP 50
+#define DOWN 51
+#define LEFT 52
+#define RIGHT 53
+#define START 49
+#define CANCEL 48
 
 byte labyrinth[16 * 16] = {
   1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1,
@@ -37,7 +38,7 @@ byte labyrinth[16 * 16] = {
   1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1
 };
 
-byte labyrinthPool[2][5][16 * 16] = {
+byte labyrinthPool[5][2][16 * 16] = {
   {
     { // 1 Lab
       1, 1, 1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1,
